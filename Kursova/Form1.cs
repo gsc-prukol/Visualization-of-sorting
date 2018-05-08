@@ -16,5 +16,63 @@ namespace Kursova
         {
             InitializeComponent();
         }
+
+        private void exitToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            Close();
+        }
+
+        private void button1_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void button2_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void button3_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void button4_Click(object sender, EventArgs e)
+        {
+
+        }
+
+    }
+    public class Pixel
+    {
+        protected int Key { get; }
+        protected Color Color { get; }
+
+        public Pixel()
+        {
+            Key = 0;
+            Color = Color.Black;
+        }
+        public Pixel(int key, Color color)
+        {
+            Key = key;
+            Color = color;
+        }
+        public static bool operator <(Pixel lhs, Pixel rhs)
+        {
+            return lhs.Key < rhs.Key;
+        }
+        public static bool operator >(Pixel lhs, Pixel rhs)
+        {
+            return lhs.Key > rhs.Key;
+        }
+        public static bool operator <=(Pixel lhs, Pixel rhs)
+        {
+            return lhs.Key <= rhs.Key;
+        }
+        public static bool operator >=(Pixel lhs, Pixel rhs)
+        {
+            return lhs.Key >= rhs.Key;
+        }
     }
 }
