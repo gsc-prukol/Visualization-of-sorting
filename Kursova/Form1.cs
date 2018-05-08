@@ -39,7 +39,7 @@ namespace Kursova
 
         private void button4_Click(object sender, EventArgs e)
         {
-
+            
         }
 
     }
@@ -73,6 +73,24 @@ namespace Kursova
         public static bool operator >=(Pixel lhs, Pixel rhs)
         {
             return lhs.Key >= rhs.Key;
+        }
+    }
+    public class  Picture
+    {
+        int Height, Width; // Висота, Ширина
+        Pixel[,] ArrayMy;
+        Picture()
+        {
+            Height = 0;
+            Width = 0;
+            ArrayMy = null;
+        }
+        Picture(int height, int width, Pixel [,] array)
+        {
+            Height = height;
+            Width = width;
+            ArrayMy = new Pixel[height, width];
+            Array.Copy(array, ArrayMy, height * width);
         }
     }
 }
