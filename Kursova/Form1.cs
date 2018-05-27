@@ -14,7 +14,7 @@ namespace Kursova
     {
         Picture picture1;
         Sort sort1;
-        int sortMethod = 0;
+        Byte sortMethod = 0;
         public Form1()
         {
             InitializeComponent();
@@ -56,7 +56,7 @@ namespace Kursova
 
         private void trackBar1_Scroll(object sender, EventArgs e)
         {
-            timer1.Interval = 1000 - trackBar1.Value;
+            timer1.Interval = 990 - trackBar1.Value;
         }
 
         private void radioButton1_CheckedChanged(object sender, EventArgs e)
@@ -73,7 +73,7 @@ namespace Kursova
         {
             sortMethod = 2;
         }
-        private Sort ChoiceMethod( int q)
+        private Sort ChoiceMethod( Byte q)
         {
             Sort sort;
             switch(q)
@@ -84,12 +84,52 @@ namespace Kursova
                 case 2:
                     sort = new InsertionSort(picture1);
                     break;
+                case 3:
+                    sort = new CombSort(picture1);
+                    break;
+                case 4:
+                    sort = new CocktailSort(picture1);
+                    break;
+                case 5:
+                    sort = new QuickSort(picture1);
+                    break;
+                case 6:
+                    sort = new ShellSort(picture1);
+                    break;
+                case 7:
+                    sort = new BogoSort(picture1);
+                    break;
                 default:
                     sort = new BubbleSort(picture1);
                     break;
 
             }
             return sort;
+        }
+
+        private void radioButton4_CheckedChanged(object sender, EventArgs e)
+        {
+            sortMethod = 3;
+        }
+
+        private void radioButton5_CheckedChanged(object sender, EventArgs e)
+        {
+            sortMethod = 4;
+        }
+
+        private void radioButton6_CheckedChanged(object sender, EventArgs e)
+        {
+            sortMethod = 5;
+        }
+
+        private void radioButton7_CheckedChanged(object sender, EventArgs e)
+        {
+            sortMethod = 6;
+        }
+
+        private void radioButton8_CheckedChanged(object sender, EventArgs e)
+        {
+            sortMethod = 7;
         }
     }
     public class Pixel
@@ -217,7 +257,7 @@ namespace Kursova
             Height = picture.Height;
             pict = picture;
         }
-        public abstract bool  SortFunction(); //можливо ітераційна, повертає ознаку відсортованості масиву
+        public abstract bool  SortFunction(); //ітераційна, повертає ознаку відсортованості масиву
     }
     public class BubbleSort : Sort
     {
@@ -284,6 +324,244 @@ namespace Kursova
                 nend = false;
             }
             return nend;
+        }
+    }
+    public class CombSort : Sort
+    {
+        protected int gap;
+        public CombSort(Picture picture) : base(picture)
+        {
+            gap = Width;
+        }
+        public override bool SortFunction()
+        {
+            nend = false;
+            UpdateGap();
+            for(int j = 0; j < Height; j++)
+            {
+                for(int i = 0; i < Width - gap; i += gap)
+                {
+                    if( pict[i, j] > pict[i + gap, j])
+                    {
+                        pict.Swap(j, i, i + gap);
+                        nend = true;
+                    }
+                }
+            }
+            return nend;
+        }
+        protected void UpdateGap()
+        {
+            /* gap = (gap * 10) / 13;
+             if (gap == 9 || gap == 10)
+                 gap = 11;
+             gap = Math.Max(1, gap);*/
+            gap /= 2;
+            gap = Math.Max(1, gap);
+        }
+    }
+    public class CocktailSort: Sort
+    {
+        protected bool inv;
+        public CocktailSort(Picture picture):base(picture)
+        {
+            inv = true;
+        }
+        public override bool SortFunction()
+        {
+            nend = false;
+            for (int j = 0; j < Height; j++)
+            {
+                if (inv)
+                {
+                    for (int i = 0; i < Width - 1; i++)
+                    {
+                        if (pict[i, j] > pict[i + 1, j])
+                        {
+                            pict.Swap(j, i, i + 1);
+                            nend = true;
+                        }
+                    }
+                }
+                else
+                {
+                    for (int i = Width - 1; i > 0; i--)
+                        if (pict[i - 1, j] > pict[i, j])
+                        {
+                            pict.Swap(j, i - 1, i);
+                            nend = true;
+                        }
+                }
+                
+            }
+            inv = !inv;
+            return nend;
+        }
+    }
+    public class QuickSort : Sort
+    {
+        Stack<ushort>[] stekc;
+        public QuickSort(Picture picture) : base(picture)
+        {
+            stekc = new Stack<ushort>[Height];
+            for (int j = 0; j < Height; j++)
+            {
+                stekc[j] = new Stack<ushort>();
+                stekc[j].Push((ushort)0);
+                stekc[j].Push((ushort)Height);
+            }
+        }
+        public override bool SortFunction()
+        {
+            nend = false;
+            for(int j = 0; j < Height; j++)
+            {
+                if(stekc[j].LongCount() > 0)
+                {
+                    int end = stekc[j].Pop();
+                    int start = stekc[j].Pop();
+                    if (end - start > 1)
+                    {
+                        nend = true;
+                        int p = start + ((end - start) / 2);
+                        p = Partition(j, p, start, end);
+                        stekc[j].Push((ushort)(p + 1));
+                        stekc[j].Push((ushort)(end));
+                        stekc[j].Push((ushort)(start));
+                        stekc[j].Push((ushort)(p));
+                    }
+                }
+
+            }
+            return nend;
+        }
+        protected int Partition(int j, int  p, int  start, int  end)
+        {
+            int h = end - 2;
+            Pixel r = pict[p, j];
+            pict.Swap(j, p, end - 1);
+            while( start < h)
+            {
+                if (pict[start, j] < r)
+                {
+                    start++;
+                }
+                else if (pict[h, j] >= r)
+                {
+                    h--;
+                }
+                else
+                {
+                    pict.Swap(j, start, h);
+                }
+            }
+            if (pict[h, j] < r)
+                h++;
+            pict.Swap(j, end - 1, h );
+            return h;
+        }
+        protected void Quick(int p, int q)
+        {
+            if (p >= q) return;
+            Pixel r = pict[p, 0];
+            int i = p - 1;
+            int j = q + 1;
+            while(i < j)
+            {
+                while (pict[i, 0] >= r)
+                    i++;
+                while (pict[j, 0] <= r)
+                    j--;
+                if (i < j)
+                    pict.Swap(0, i, j);
+            }
+            Quick(p, j);
+            Quick(j + 1, q);
+        }
+    }
+    public class ShellSort : Sort
+    {
+        protected int d;
+        public ShellSort(Picture picture1) : base(picture1) { d = Width / 2; }
+        public override bool SortFunction()
+        {
+            nend = true;
+            for(int j = 0; j < Height; j++)
+            {
+                for(int i = d; i < Width; i++)
+                {
+                    for(int k = i; k >= d; k -= d)
+                    {
+                        if (pict[k-d, j] > pict[k, j])
+                            {
+                                pict.Swap(j, k, k-d);
+                            }
+                    }
+                }
+            }
+            d /= 2;
+            if(d == 0)
+            {
+                nend = false;
+            }
+            return nend;
+        }
+    }
+    public class BogoSort: Sort
+    {
+        bool[] boo;
+        Random r = new Random();
+        public BogoSort(Picture picture) : base(picture)
+        {
+            boo = new bool[Height];
+            for(int j = 0; j < Height; j++)
+            {
+                boo[j] = false;
+            }
+        }
+        public override bool SortFunction()
+        {
+            Permutation();
+            IsSorted();
+            nend = false;
+            for(int j = 0; j < Height; j++)
+            {
+                nend = nend || boo[j];
+            }
+            return nend;
+        }
+        protected void IsSorted()
+        {
+            for(int j = 0; j < Height; j++)
+            {
+                boo[j] = false;
+                for(int i = 0; i < Width - 1; i++)
+                {
+                    if(pict[i, j] > pict[i+1, j])
+                    {
+                        boo[j] = true;
+                    }
+
+                }
+            }
+        }
+        protected void Permutation()
+        {
+            int a, b;
+            for (int j = 0; j < Height; j++)
+            {
+                if(boo[j])
+                {
+                    for (int i = 0; i < Width/2; i++)
+                    {
+                        a = r.Next(Width);
+                        b = r.Next(Width);
+                        pict.Swap(j, a, b);
+                    }
+                }
+                
+
+            }
         }
     }
 }
