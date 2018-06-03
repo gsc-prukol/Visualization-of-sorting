@@ -163,6 +163,16 @@ namespace Kursova
             s.ShowDialog();
             this.Show();
         }
+
+        private void label1_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void helpToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+
+        }
     }
     public class Pixel
     {
@@ -479,17 +489,18 @@ namespace Kursova
             {
                 if(stekc[j].LongCount() > 0)
                 {
+                    nend = true;
                     int end = stekc[j].Pop();
                     int start = stekc[j].Pop();
                     if (end - start > 1)
                     {
-                        nend = true;
+                      
                         int p = start + ((end - start) / 2);
                         p = Partition(j, p, start, end);
-                        stekc[j].Push((ushort)(p + 1));
-                        stekc[j].Push((ushort)(end));
-                        stekc[j].Push((ushort)(start));
-                        stekc[j].Push((ushort)(p));
+                        stekc[j].Push(p + 1);
+                        stekc[j].Push(end);
+                        stekc[j].Push(start);
+                        stekc[j].Push(p);
                     }
                 }
 
