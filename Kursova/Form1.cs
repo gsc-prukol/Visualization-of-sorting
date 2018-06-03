@@ -7,6 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using System.Xml;
 
 namespace Kursova
 {
@@ -17,6 +18,7 @@ namespace Kursova
         Byte sortMethod = 0;
         public Form1()
         {
+
             InitializeComponent();
             picture1 = new Picture(new Bitmap(pictureBox1.Image));
         }
@@ -37,12 +39,16 @@ namespace Kursova
             sort1 = ChoiceMethod(sortMethod);
             button3.Enabled = true;
             button4.Enabled = false;
+            button1.Enabled = false;
+            button2.Enabled = false;
             timer1.Enabled = sort1.SortFunction();
         }
 
         private void button3_Click(object sender, EventArgs e)
         {
             timer1.Enabled ^= true;
+            button1.Enabled ^= true;
+            button2.Enabled ^= true; ;
         }
 
         private void button4_Click(object sender, EventArgs e)
@@ -55,6 +61,8 @@ namespace Kursova
             timer1.Enabled = sort1.SortFunction();
             button3.Enabled = timer1.Enabled;
             button4.Enabled = !timer1.Enabled;
+            button1.Enabled = !timer1.Enabled;
+            button2.Enabled = !timer1.Enabled;
             pictureBox1.Image = picture1.GetBitmap();
         }
 
@@ -171,7 +179,7 @@ namespace Kursova
 
         private void helpToolStripMenuItem_Click(object sender, EventArgs e)
         {
-
+            Help.ShowHelp(this, "spravka.chm");
         }
     }
     public class Pixel
