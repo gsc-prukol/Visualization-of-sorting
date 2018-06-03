@@ -35,22 +35,26 @@ namespace Kursova
         private void button2_Click(object sender, EventArgs e)
         {
             sort1 = ChoiceMethod(sortMethod);
+            button3.Enabled = true;
+            button4.Enabled = false;
             timer1.Enabled = sort1.SortFunction();
         }
 
         private void button3_Click(object sender, EventArgs e)
         {
-            timer1.Enabled ^= true; ;
+            timer1.Enabled ^= true;
         }
 
         private void button4_Click(object sender, EventArgs e)
         {
-            
+            Pixel.Invers();
         }
 
         private void timer1_Tick(object sender, EventArgs e)
         {
             timer1.Enabled = sort1.SortFunction();
+            button3.Enabled = timer1.Enabled;
+            button4.Enabled = !timer1.Enabled;
             pictureBox1.Image = picture1.GetBitmap();
         }
 
@@ -99,6 +103,9 @@ namespace Kursova
                 case 7:
                     sort = new BogoSort(picture1);
                     break;
+                case 8:
+                    sort = new MergeSort(picture1);
+                    break;
                 default:
                     sort = new BubbleSort(picture1);
                     break;
@@ -131,12 +138,41 @@ namespace Kursova
         {
             sortMethod = 7;
         }
+
+        private void radioButton9_CheckedChanged(object sender, EventArgs e)
+        {
+            sortMethod = 8;
+        }
+
+        private void pictureBox1_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void Form1_Load(object sender, EventArgs e)
+        {
+
+        }
+
+        private void optionsToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            Form2 s = new Form2();
+            s.ShowInTaskbar = false;
+            // Display the form in the center of the screen.
+            s.StartPosition = FormStartPosition.CenterParent;
+            s.ShowDialog();
+            this.Show();
+        }
     }
     public class Pixel
     {
+        protected static bool invers = false;
         public int Key { get; }
         public Color ColorMy { get; }
-
+        public static void Invers()
+        {
+            invers = !invers;
+        }
         public Pixel()
         {
             Key = 0;
@@ -149,19 +185,19 @@ namespace Kursova
         }
         public static bool operator <(Pixel lhs, Pixel rhs)
         {
-            return lhs.Key < rhs.Key;
+            return (lhs.Key < rhs.Key) ^ invers;
         }
         public static bool operator >(Pixel lhs, Pixel rhs)
         {
-            return lhs.Key > rhs.Key;
+            return (lhs.Key > rhs.Key) ^ invers;
         }
         public static bool operator <=(Pixel lhs, Pixel rhs)
         {
-            return lhs.Key <= rhs.Key;
+            return (lhs.Key <= rhs.Key) ^ invers;
         }
         public static bool operator >=(Pixel lhs, Pixel rhs)
         {
-            return lhs.Key >= rhs.Key;
+            return (lhs.Key >= rhs.Key) ^ invers;
         }
     }
     public class  Picture
@@ -243,7 +279,32 @@ namespace Kursova
             }
             return false;
         }
-        
+        public Pixel[] Line( int i, int j, int l) //  стовпчик, рядок, довжина
+        {
+            Pixel[] rez = null;
+            if (j >= 0 && j < Height && i >= 0 && i < Width && i+l  < Width)
+            {
+                rez = new Pixel[l];
+                for(int k = 0; k < l; k++)
+                {
+                    rez[k] = ArrayMy[i + k, j];
+                }
+            }
+            return rez;
+        }
+        public bool ReplacingLine(Pixel[] sourse, int i, int j)
+        {
+            int l = sourse.GetLength(0);
+            if (j >= 0 && j < Height && i >= 0 && i < Width && i + l- 1  < Width)
+            {
+                for (int k = 0; k < l; k++)
+                {
+                    ArrayMy[i + k, j] = sourse[k];
+                }
+                return true;
+            }
+            return false;
+        }
     }
     public abstract class Sort
     {
@@ -339,7 +400,7 @@ namespace Kursova
             UpdateGap();
             for(int j = 0; j < Height; j++)
             {
-                for(int i = 0; i < Width - gap; i += gap)
+                for(int i = 0; i < Width - gap; i++)
                 {
                     if( pict[i, j] > pict[i + gap, j])
                     {
@@ -348,16 +409,16 @@ namespace Kursova
                     }
                 }
             }
+            if (gap != 1)
+                nend = true;
             return nend;
         }
         protected void UpdateGap()
         {
-            /* gap = (gap * 10) / 13;
+             gap = (gap * 10) / 13;
              if (gap == 9 || gap == 10)
                  gap = 11;
-             gap = Math.Max(1, gap);*/
-            gap /= 2;
-            gap = Math.Max(1, gap);
+             gap = Math.Max(1, gap);
         }
     }
     public class CocktailSort: Sort
@@ -400,15 +461,15 @@ namespace Kursova
     }
     public class QuickSort : Sort
     {
-        Stack<ushort>[] stekc;
+        Stack<int>[] stekc;
         public QuickSort(Picture picture) : base(picture)
         {
-            stekc = new Stack<ushort>[Height];
+            stekc = new Stack<int>[Height];
             for (int j = 0; j < Height; j++)
             {
-                stekc[j] = new Stack<ushort>();
-                stekc[j].Push((ushort)0);
-                stekc[j].Push((ushort)Height);
+                stekc[j] = new Stack<int>();
+                stekc[j].Push(0);
+                stekc[j].Push(Width);
             }
         }
         public override bool SortFunction()
@@ -562,6 +623,59 @@ namespace Kursova
                 
 
             }
+        }
+    }
+    public class MergeSort : Sort
+    {
+        Stack<int> stekc;
+        public MergeSort(Picture picture) : base(picture)
+        {
+            stekc = new Stack<int>();
+            FillStekc(0, Width-1);
+        }
+        protected void FillStekc(int p, int q)
+        {
+            if( q - p < 1)
+            {
+                return;
+            }
+            int c = (p + q) / 2;
+            stekc.Push(p);
+            stekc.Push(c);
+            stekc.Push(q);
+            if (q - p > 1)
+            {
+                FillStekc(c + 1, q);
+                FillStekc(p, c);
+            }
+        }
+        public override bool SortFunction()
+        {
+            int q = stekc.Pop();
+            int c = stekc.Pop();
+            int p = stekc.Pop();
+            for(int z = 0; z < Height; z++)
+            {
+                int i = p;
+                int j = c + 1;
+                Pixel[] b = new Pixel[q - p+1];
+                for (int k = 0; k < q - p+1; k++)
+                {
+                    if (j > q || (i <= c && pict[i, z] < pict[j, z]))
+                    {
+                        b[k] = pict[i, z];
+                        i++;
+                    }
+                    else
+                    {
+                        b[k] = pict[j, z];
+                        j++;
+                    }
+                }
+                pict.ReplacingLine(b, p, z);
+            }
+            nend = stekc.Count() != 0;
+            return nend;
         }
     }
 }
