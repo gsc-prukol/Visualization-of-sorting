@@ -42,6 +42,11 @@ namespace Kursova
             button1.Enabled = false;
             button2.Enabled = false;
             timer1.Enabled = sort1.SortFunction();
+            button3.Enabled = timer1.Enabled;
+            button4.Enabled = !timer1.Enabled;
+            button1.Enabled = !timer1.Enabled;
+            button2.Enabled = !timer1.Enabled;
+            pictureBox1.Image = picture1.GetBitmap();
         }
 
         private void button3_Click(object sender, EventArgs e)
@@ -589,14 +594,14 @@ namespace Kursova
     }
     public class BogoSort: Sort
     {
-        bool[] boo;
+        bool[] isSortedBools;
         Random r = new Random();
         public BogoSort(Picture picture) : base(picture)
         {
-            boo = new bool[Height];
+            isSortedBools = new bool[Height];
             for(int j = 0; j < Height; j++)
             {
-                boo[j] = false;
+                isSortedBools[j] = false;
             }
         }
         public override bool SortFunction()
@@ -606,20 +611,20 @@ namespace Kursova
             nend = false;
             for(int j = 0; j < Height; j++)
             {
-                nend = nend || boo[j];
+                nend = nend || !isSortedBools[j];
             }
             return nend;
         }
-        protected void IsSorted()
+        private void IsSorted()
         {
             for(int j = 0; j < Height; j++)
             {
-                boo[j] = false;
+                isSortedBools[j] = true;
                 for(int i = 0; i < Width - 1; i++)
                 {
                     if(pict[i, j] > pict[i+1, j])
                     {
-                        boo[j] = true;
+                        isSortedBools[j] = false;
                     }
 
                 }
@@ -630,13 +635,14 @@ namespace Kursova
             int a, b;
             for (int j = 0; j < Height; j++)
             {
-                if(boo[j])
+                if(!isSortedBools[j])
                 {
-                    for (int i = 0; i < Width/2; i++)
+                    for (int i = 0; i < Width / 2; i++)
                     {
                         a = r.Next(Width);
                         b = r.Next(Width);
-                        pict.Swap(j, a, b);
+                        if((pict[a, j] > pict[b, j] && a < b) || (pict[a, j] < pict[b, j] && a > b))
+                            pict.Swap(j, a, b);
                     }
                 }
                 
